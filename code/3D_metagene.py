@@ -18,7 +18,7 @@ import sys
 # largesize - max footprint size, inclusive
 # window_left- window size of upstream region of start or stop codon.
 # window_right - window size of downstream region of start or stop codon.
-# metagene options: put 0 for start or 1 for stop.
+# metagene options: put 1 for start or 2 for stop.
 # Note that this metagene performs the arithmetic mean of all reads that map to particular positions; it does not calculate a normalized average where every gene has equal representation.
 def main(fasta_in,sam_in,outfile_path,subset_list,smallsize,largesize,window_left,window_right,metagene):
 	print("\nName of python script:",(__file__.split("/")[-1]))
@@ -61,11 +61,11 @@ def main(fasta_in,sam_in,outfile_path,subset_list,smallsize,largesize,window_lef
 		startcodon=int(genedata[gene][3])
 		genelen=len(genedata[gene][1])
 		
-		if metagene==0:
+		if metagene==1:
 			if (startcodon<window_left):
 				UTRshort.append(gene)	# Create a dictionary of gene names with too short UTRs.
 				continue
-		elif metagene==1:
+		elif metagene==2:
 			if ((genelen-stopcodon+3)<window_right):
 				UTRshort.append(gene)	# Create a dictionary of gene names with too short UTRs.
 				continue
@@ -129,7 +129,7 @@ def main(fasta_in,sam_in,outfile_path,subset_list,smallsize,largesize,window_lef
 		# Below a series of checks are made to see if the read is a match to the transcriptome, if it is in the subset list, if the gene's UTR is long enough to accomodate, and if the 5' and 3' ends of the reads fit in the window.
 		# If all true, it is added into the average.
 		# Start codons
-		if (read[1] == '0') and metagene == 0:	    		# mapped reads that are going to be counted
+		if (read[1] == '0') and metagene == 1:	    		# mapped reads that are going to be counted
 			mappedreads+=1
 			if (startp <= startcodon+window_right and startp >= startcodon-window_left):   # test if read 5' end falls within start or stop codon region
 				startp_rel = (startp - startcodon) + window_left # substract startcodon from startp to align all transcripts within window 
@@ -141,7 +141,7 @@ def main(fasta_in,sam_in,outfile_path,subset_list,smallsize,largesize,window_lef
 				finalreads3+=1
    
         # Stop codons
-		if (read[1] == '0') and metagene == 1:	    		# mapped reads that are going to be counted
+		if (read[1] == '0') and metagene == 2:	    		# mapped reads that are going to be counted
 			mappedreads+=1
 			if (startp <= stopcodon+window_right and startp >= stopcodon-window_left):   # test if read 5' end falls within start or stop codon region
 				startp_rel = (startp - stopcodon) + window_left # substract stopcodon from startp to align all transcripts within window 
